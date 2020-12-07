@@ -15,6 +15,7 @@ bool validateValue(string key, string value)
             int nr = std::stoi(value);
             if (nr >= 1920 && nr <= 2002)
             {
+                //cout << "byr: " << value << endl;
                 validated = true;
             }
         }
@@ -30,6 +31,7 @@ bool validateValue(string key, string value)
             int nr = std::stoi(value);
             if (nr >= 2010 && nr <= 2020)
             {
+                //cout << "iyr: " << value << endl;
                 validated = true;
             }
         }
@@ -45,6 +47,7 @@ bool validateValue(string key, string value)
             int nr = std::stoi(value);
             if (nr >= 2020 && nr <= 2030)
             {
+                //cout << "eyr: " << value << endl;
                 validated = true;
             }
         }
@@ -65,7 +68,7 @@ bool validateValue(string key, string value)
                     validated = true;
                 }
             }
-            else
+            else if (value.find("in") != std::string::npos)
             {
                 if (nr >= 59 && nr <= 76)
                 {
@@ -81,8 +84,7 @@ bool validateValue(string key, string value)
     }
     else if (key == "hcl")
     {
-        std::size_t pos;
-        pos = value.find("#");
+        std::size_t pos=value.find("#");
         if (pos == 0)
         {
             for (int i='g'; i<='z'; i++)
@@ -94,6 +96,7 @@ bool validateValue(string key, string value)
                 else
                 {
                     validated = false;
+                    break;
                 }
             }
         }
@@ -115,6 +118,7 @@ bool validateValue(string key, string value)
         try
         {
             int nr = std::stoi(value);
+            int x = nr;
             int digits = 0;
             while (nr != 0)
             {
@@ -123,7 +127,13 @@ bool validateValue(string key, string value)
             }
             if (digits == 9)
             {
+                // std::cout << "pid: " << value << endl;
+                // std::cout<<"nr: " << x << endl;
                 validated = true;
+            }
+            else
+            {
+                validated = false;
             }
         }
         catch (...)
@@ -137,9 +147,8 @@ bool validateValue(string key, string value)
 
 string getValue(string concatStr, string key)
 {
-    std::size_t pos;
+    std::size_t pos=concatStr.find(key);
     std::string keyValue = "";
-    pos = concatStr.find(key);
     if (key == "byr")
     {
         keyValue = concatStr.substr(pos+key.length()+1,4);
@@ -166,15 +175,15 @@ string getValue(string concatStr, string key)
     }
     else if (key == "pid")
     {
-        keyValue = concatStr.substr(pos+key.length()+1,10);
+        keyValue = concatStr.substr(pos+key.length()+1,9);
     }
-    //std::cout<<keyValue<<endl;
+    //std:://cout<<keyValue<<endl;
     return keyValue;
 }
 
 int main(int argc, const char* argv[])
 {
-    int count=0;
+    int ValidPasscount=0;
     /* Populate a map object and then parse it */
     /*map<string,string> passport =
     {
@@ -190,13 +199,12 @@ int main(int argc, const char* argv[])
     passport["byr"] = "ccc";
     for (auto it = passport.begin(); it != passport.end(); ++it)
     {
-        cout << it->first << it->second << endl;
+        //cout << it->first << it->second << endl;
     } */
     std::string passports[7] = {"byr", "iyr", "eyr","hgt","hcl","ecl","pid"};
     ifstream input("in.txt");
     bool flag = false;
     std::string concatString = "";
-    bool validateVal = false;
     std::string value ="";
     for (std::string line; getline(input, line);)
     {
@@ -211,19 +219,36 @@ int main(int argc, const char* argv[])
                 if (concatString.find(passports[i]) != std::string::npos)
                 {
                     value = getValue(concatString, passports[i]);
-                    //cout << value << endl;
                     if (validateValue(passports[i], value) == true)
                     {
                         flag = true;
                     }
+                    else
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                else
+                {
+                    flag = false;
+                    break;
                 }
             }
-            if (flag == false)
+            if (flag == true)
             {
-                count++;
-                std::cout << count << endl;
+                // if (ValidPasscount == 135)
+                // {
+                //     std::cout<<concatString<<endl;
+                // }
+                // else if (ValidPasscount == 136)
+                // {
+                //     std::cout<<concatString<<endl;
+                // }
+                ValidPasscount++;
+                std::cout << ValidPasscount << endl;
             }
-                flag = false;
+                //flag = false;
                 concatString = "";
         }
     }
